@@ -1,70 +1,66 @@
-from django_logic import Process, Action, Transition
 
-from store.call_backs import turn_on_alarm
-from store.condition import is_user, is_staff, is_planned, is_lock_available
-from store.model_utils import Choices
+from django_logic import Process, Transition
 
-LOCK_STATES = (
-    ('maintenance', 'Under maintenance'),
-    ('locked', 'Locked'),
-    ('open', 'Open'),
+from store import call_backs
+
+
+COOPERATION_PARTNER_STATE_REGISTERED = 'Registered'
+COOPERATION_PARTNER_STATE_ON_HOLD = 'On hold'
+COOPERATION_PARTNER_STATE_APPROVED = 'Approved'
+COOPERATION_PARTNER_STATE_REJECTED = 'Rejected'
+COOPERATION_PARTNER_STATE_EXPIRED = 'Registered (expired)'
+
+COOPERATION_PARTNER_STATE_CHOICES = (
+    (COOPERATION_PARTNER_STATE_REGISTERED,
+     COOPERATION_PARTNER_STATE_REGISTERED),
+    (COOPERATION_PARTNER_STATE_ON_HOLD,
+     COOPERATION_PARTNER_STATE_ON_HOLD),
+    (COOPERATION_PARTNER_STATE_APPROVED,
+     COOPERATION_PARTNER_STATE_APPROVED),
+    (COOPERATION_PARTNER_STATE_REJECTED,
+     COOPERATION_PARTNER_STATE_REJECTED),
+    (COOPERATION_PARTNER_STATE_EXPIRED,
+     COOPERATION_PARTNER_STATE_EXPIRED),
 )
 
 
-class UserLockerProcess(Process):
-    permissions = [is_user]
-    transitions = [
-        Action(
-            action_name='action_refresh',
-            sources=['open', 'locked']
-        ),
-        Transition(
-            action_name='action_lock',
-            sources=['open'],
-            target='locked'
-        ),
-        Transition(
-            action_name='action_unlock',
-            sources=['locked'],
-            target='open'
-        )
-    ]
+class CooperationPartnerProcess(Process):
 
-
-class StaffLockerProcess(Process):
-    permissions = [is_staff]
-    all_states = [x for x, y in LOCK_STATES]
+    states = COOPERATION_PARTNER_STATE_CHOICES
 
     transitions = [
         Transition(
-            action_name='action_lock',
-            sources=['open', 'maintenance'],
-            target='locked'
-        ),
-        Transition(
-            action_name='action_unlock',
-            sources=['locked', 'maintenance'],
-            target='open',
+            action_name='action_verify_account',
+            sources=[COOPERATION_PARTNER_STATE_REGISTERED,
+                     COOPERATION_PARTNER_STATE_EXPIRED],
+            target=COOPERATION_PARTNER_STATE_ON_HOLD,
+            side_effects=[
+                call_backs.verify_account
+            ],
             callbacks=[
-                turn_on_alarm
+                call_backs.verify_account
+            ]
+        ),
+
+        Transition(
+            action_name='action_approve_account',
+            sources=[COOPERATION_PARTNER_STATE_ON_HOLD,
+                     COOPERATION_PARTNER_STATE_REJECTED],
+            target=COOPERATION_PARTNER_STATE_APPROVED,
+            side_effects=[
+                call_backs.approve_account
             ]
         ),
         Transition(
-            action_name='action_maintain',
-            sources=all_states,
-            target='maintenance',
-            conditions=[is_planned]
+            action_name='action_reject_account',
+            sources=[
+                COOPERATION_PARTNER_STATE_ON_HOLD,
+                COOPERATION_PARTNER_STATE_APPROVED
+            ],
+            target=COOPERATION_PARTNER_STATE_REJECTED,
+            side_effects=[
+                call_backs.reject_account
+            ]
         ),
 
-    ]
-
-
-class LockerProcess(Process):
-    states = LOCK_STATES
-
-    conditions = [is_lock_available]
-
-    nested_processes = [
-        StaffLockerProcess,
-        UserLockerProcess,
     ]

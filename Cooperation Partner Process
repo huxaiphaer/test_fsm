@@ -1,0 +1,28 @@
+digraph "Cooperation Partner Process" {
+	node [shape=record]
+	node [fillcolor=lightgrey shape=record style=filled]
+	140707616843664 [label=action_verify_account]
+	node [fillcolor=lightgrey shape=record style=filled]
+	140707616843712 [label=action_approve_account]
+	node [fillcolor=lightgrey shape=record style=filled]
+	140707616842032 [label=action_reject_account]
+	node [fillcolor=white shape=oval style=filled]
+	Approved [label=Approved]
+	node [fillcolor=white shape=oval style=filled]
+	Rejected [label=Rejected]
+	node [fillcolor=white shape=oval style=filled]
+	"On hold" [label="On hold"]
+	node [fillcolor=white shape=oval style=filled]
+	Registered [label=Registered]
+	node [fillcolor=white shape=oval style=filled]
+	"Registered (expired)" [label="Registered (expired)"]
+	140707616842032 -> Rejected
+	Rejected -> 140707616843712
+	"On hold" -> 140707616842032
+	Registered -> 140707616843664
+	"On hold" -> 140707616843712
+	140707616843664 -> "On hold"
+	Approved -> 140707616842032
+	140707616843712 -> Approved
+	overlap=false
+}

@@ -1,9 +1,12 @@
-from rest_framework import routers
-
-from store.viewsets import LockerViewSet
+from django.urls import path
+from store.views import LockerAPIView
 
 app_name = 'api'
 
-router = routers.DefaultRouter()
-router.register(r'locks', LockerViewSet, basename='lock')
-urlpatterns = router.urls
+urlpatterns = [
+    path('locks/', LockerAPIView.as_view(), name='locks'),
+]
+
+
+
+

@@ -8,8 +8,8 @@ class LockerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lock
-        fields = ('id', 'actions', 'status')
-        readonly = ('id', 'status')
+        fields = ('id', 'actions', 'status',)
+        readonly = ('id', 'status',)
 
     def get_actions(self, instance):
         return sorted(set([transition.action_name for transition in
