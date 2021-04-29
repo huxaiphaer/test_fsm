@@ -1,0 +1,56 @@
+digraph "Locker Process" {
+	node [shape=record]
+	node [fillcolor=white shape=diamond style=filled]
+	"140726410822928|conditions" [label=is_lock_available]
+	node [fillcolor=white shape=oval style=filled]
+	locked [label=locked]
+	node [fillcolor=white shape=oval style=filled]
+	open [label=open]
+	subgraph cluster_140726410843600 {
+		node [fillcolor=white shape=diamond style=filled]
+		"140726410843600|conditions" [label=is_staff]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140726483218688 [label=action_lock]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140726483274912 [label=action_unlock]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140726483274960 [label=action_maintain]
+		node [fillcolor=lightgrey shape=diamond style=filled]
+		"140726483274960|conditions" [label=is_planned]
+		node [fillcolor=white shape=oval style=filled]
+		maintenance [label=maintenance]
+		label="Staff Locker Process"
+	}
+	subgraph cluster_140726410848128 {
+		node [fillcolor=white shape=diamond style=filled]
+		"140726410848128|conditions" [label=is_user]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140726483240992 [label=action_refresh]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140726483221376 [label=action_lock]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140726483220752 [label=action_unlock]
+		node [fillcolor=white shape=oval style=filled]
+		"" [label=""]
+		label="User Locker Process"
+	}
+	140726483221376 -> locked
+	locked -> 140726483274912
+	locked -> "140726483274960|conditions"
+	"140726483274960|conditions" -> 140726483274960
+	maintenance -> 140726483274912
+	locked -> 140726483240992
+	140726483274912 -> open
+	open -> 140726483240992
+	140726483220752 -> open
+	open -> "140726483274960|conditions"
+	open -> 140726483218688
+	maintenance -> 140726483218688
+	140726483240992 -> ""
+	open -> 140726483221376
+	locked -> 140726483220752
+	140726483218688 -> locked
+	maintenance -> "140726483274960|conditions"
+	140726483274960 -> maintenance
+	overlap=false
+}
