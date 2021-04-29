@@ -1,32 +1,43 @@
-from django_logic import Process, Action, Transition
+from gc import callbacks
 
-from store.call_backs import turn_on_alarm
-from store.condition import is_user, is_staff, is_planned, is_lock_available
-from store.model_utils import Choices
+from django_logic import Process, Transition
+
+from .condition import is_user, is_staff, is_planned, is_lock_available
 
 LOCK_STATES = (
     ('maintenance', 'Under maintenance'),
     ('locked', 'Locked'),
     ('open', 'Open'),
+    ('pause', 'Pause'),
 )
+
+
+def turn_on_alarm(lock, *args, **kwargs):
+    print("Change any status here you like.")
 
 
 class UserLockerProcess(Process):
     permissions = [is_user]
     transitions = [
-        Action(
-            action_name='action_refresh',
-            sources=['open', 'locked']
-        ),
+
         Transition(
             action_name='action_lock',
             sources=['open'],
-            target='locked'
+            target='locked',
+            callbacks=[
+                turn_on_alarm
+            ],
+            side_effects=[
+                turn_on_alarm
+            ]
         ),
         Transition(
             action_name='action_unlock',
             sources=['locked'],
-            target='open'
+            target='open',
+            callbacks=[
+                turn_on_alarm
+            ]
         )
     ]
 
@@ -39,13 +50,22 @@ class StaffLockerProcess(Process):
         Transition(
             action_name='action_lock',
             sources=['open', 'maintenance'],
-            target='locked'
+            target='locked',
+            side_effects=[
+                turn_on_alarm
+            ],
+            callbacks = [
+                turn_on_alarm
+            ]
         ),
         Transition(
             action_name='action_unlock',
             sources=['locked', 'maintenance'],
             target='open',
-            callbacks=[
+            side_effects=[
+                turn_on_alarm
+            ],
+            callbacks= [
                 turn_on_alarm
             ]
         ),
@@ -53,8 +73,14 @@ class StaffLockerProcess(Process):
             action_name='action_maintain',
             sources=all_states,
             target='maintenance',
+            side_effects=[
+                turn_on_alarm
+            ],
+            callbacks=[
+                turn_on_alarm
+            ],
             conditions=[is_planned]
-        ),
+        )
 
     ]
 

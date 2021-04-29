@@ -3,10 +3,12 @@ from django.db import models
 # Create your models here.
 from django_logic import ProcessManager
 
-from store.process import LockerProcess
+from .process import LockerProcess
+
+LockProcess = ProcessManager.bind_state_fields(status=LockerProcess)
 
 
-class Lock(ProcessManager.bind_state_fields(status=LockerProcess), models.Model):
+class Lock(LockProcess, models.Model):
     status = models.CharField(
         choices=LockerProcess.states, default='open',
         max_length=16, blank=True)
@@ -15,3 +17,4 @@ class Lock(ProcessManager.bind_state_fields(status=LockerProcess), models.Model)
 
     def __str__(self):
         return self.status
+
