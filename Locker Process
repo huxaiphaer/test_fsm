@@ -1,0 +1,51 @@
+digraph "Locker Process" {
+	node [shape=record]
+	node [fillcolor=white shape=diamond style=filled]
+	"140425396299248|conditions" [label=is_lock_available]
+	node [fillcolor=white shape=oval style=filled]
+	open [label=open]
+	node [fillcolor=white shape=oval style=filled]
+	locked [label=locked]
+	subgraph cluster_140425396262704 {
+		node [fillcolor=white shape=diamond style=filled]
+		"140425396262704|conditions" [label=is_staff]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140425484238512 [label=action_lock]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140425484235296 [label=action_unlock]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140425484291088 [label=action_maintain]
+		node [fillcolor=lightgrey shape=diamond style=filled]
+		"140425484291088|conditions" [label=is_planned]
+		node [fillcolor=white shape=oval style=filled]
+		maintenance [label=maintenance]
+		label="Staff Locker Process"
+	}
+	subgraph cluster_140425396261760 {
+		node [fillcolor=white shape=diamond style=filled]
+		"140425396261760|conditions" [label=is_user]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140425484257936 [label=action_lock]
+		node [fillcolor=lightgrey shape=record style=filled]
+		140425484257984 [label=action_unlock]
+		label="User Locker Process"
+	}
+	node [fillcolor=white shape=oval style=filled]
+	pause [label=pause]
+	140425484235296 -> open
+	140425484291088 -> maintenance
+	140425484257984 -> open
+	locked -> 140425484235296
+	open -> "140425484291088|conditions"
+	140425484257936 -> locked
+	"140425484291088|conditions" -> 140425484291088
+	maintenance -> "140425484291088|conditions"
+	locked -> 140425484257984
+	open -> 140425484238512
+	maintenance -> 140425484235296
+	open -> 140425484257936
+	140425484238512 -> locked
+	maintenance -> 140425484238512
+	locked -> "140425484291088|conditions"
+	overlap=false
+}
