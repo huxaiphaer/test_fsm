@@ -24,7 +24,7 @@ class LockerAPIView(generics.ListCreateAPIView):
         id = request.data['id']
         query = Lock.objects.get(id=id)
         try:
-            query.process.action_reject_account()
+            query.process.action_verify_account()
             serializer = LockerSerializer(query)
             return Response(
                 serializer.data
@@ -34,5 +34,3 @@ class LockerAPIView(generics.ListCreateAPIView):
             return Response(
                 {'Transition not allowed'}
             )
-
-
