@@ -25,7 +25,6 @@ class LockerAPIView(generics.ListCreateAPIView):
         query = Lock.objects.get(id=id)
         try:
             query.process.action_reject_account()
-            # query.refresh_from_db()
             serializer = LockerSerializer(query)
             return Response(
                 serializer.data
